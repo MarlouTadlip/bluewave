@@ -51,7 +51,7 @@ const page = () => {
 
         {/* Sign Up Link */}
         <p className="text-sm text-center mt-4 text-base-content">
-          Don't have an account? <Link href='/register'>Sign up</Link>
+          Don&apos;t have an account? <Link href='/register'>Sign up</Link>
         </p>
       </div>
     </div>
