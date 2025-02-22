@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 import Wave from "react-wavify";
+import Link from "next/link";
+import { motion } from "motion/react";
 
 export default function Home() {
   return (
@@ -8,7 +10,13 @@ export default function Home() {
       {/* Hero Section - Stats on Right with Wave Background */}
       <div id="home" className="relative min-h-screen bg-base-200 flex flex-col justify-center">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 px-6 lg:px-16 max-w-7xl mx-auto z-10">
-          
+        
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+      >
           {/* Left: Hero Content */}
           <div className="text-center lg:text-left max-w-lg">
             <h1 className="mb-5 text-4xl md:text-5xl font-bold text-base-content">
@@ -19,12 +27,20 @@ export default function Home() {
               Be the wave of change today!
             </p>
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
-              <button className="btn btn-primary w-full sm:w-auto">Volunteer Now</button>
+              <Link href="/register"><button className="btn btn-primary w-full sm:w-auto">Volunteer Now</button></Link>
               <button className="btn btn-secondary w-full sm:w-auto">Donate</button>
             </div>
           </div>
-
+          </motion.div>
           {/* Right: Stats Section */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+                duration: 0.4,
+                scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
+            }}
+          >
           <div className="stats shadow-lg w-full lg:w-auto bg-base-300 rounded-lg">
             <div className="stat">
               <div className="stat-title text-base-content">Total Volunteers</div>
@@ -42,9 +58,9 @@ export default function Home() {
               <div className="stat-desc">And counting!</div>
             </div>
           </div>
-
+          </motion.div>
         </div>
-
+        
         {/* Wave Background */}
         <div className="absolute bottom-0 left-0 w-full">
           <Wave
