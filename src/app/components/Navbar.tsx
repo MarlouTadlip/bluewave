@@ -1,6 +1,7 @@
 import React from 'react';
 import ThemeSwitcher from '../context/themecontroller';
 import Link from 'next/link';
+import { House,Info,Users } from 'lucide-react'
 
 const Navbar = ({ handleScroll }: { handleScroll: (id: string) => void }) => {
   return (
@@ -19,18 +20,19 @@ const Navbar = ({ handleScroll }: { handleScroll: (id: string) => void }) => {
             </svg>
           </div>
           <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow">
-            <li><button onClick={() => handleScroll("home")}>Home</button></li>
-            <li><button onClick={() => handleScroll("about")}>About</button></li>
-            <li><button onClick={() => handleScroll("team")}>Team</button></li>
+            <li><button onClick={() => handleScroll("home")}><House/>Home</button></li>
+            <li><button onClick={() => handleScroll("about")}><Info/>About</button></li>
+            <li><button onClick={() => handleScroll("team")}><Users/>Team</button></li>
           </ul>
         </div>
+        <img src='/favicon.png' alt='logo' className="hidden lg:block h-10 w-auto ml-2" />
         <a className="btn btn-ghost text-xl">BlueWave</a>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
-          <li><button onClick={() => handleScroll("home")}>Home</button></li>
-          <li><button onClick={() => handleScroll("about")}>About</button></li>
-          <li><button onClick={() => handleScroll("team")}>Team</button></li>
+          <li><button onClick={() => handleScroll("home")}><House/>Home</button></li>
+          <li><button onClick={() => handleScroll("about")}><Info/>About</button></li>
+          <li><button onClick={() => handleScroll("team")}><Users/>Team</button></li>
         </ul>
       </div>
       <div className="navbar-end">
