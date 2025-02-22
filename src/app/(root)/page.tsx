@@ -82,17 +82,17 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           <div className="card bg-base-100 shadow-lg p-6">
             <img src="team1.jpg" alt="Team Member" className="rounded-full w-24 h-24 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-base-content">Juan Dela Cruz</h3>
+            <h3 className="text-xl font-semibold text-base-content">Marlou Sama</h3>
             <p className="text-gray-500">Founder</p>
           </div>
           <div className="card bg-base-100 shadow-lg p-6">
             <img src="team2.jpg" alt="Team Member" className="rounded-full w-24 h-24 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-base-content">Maria Santos</h3>
+            <h3 className="text-xl font-semibold text-base-content">Marlou Sama</h3>
             <p className="text-gray-500">Project Manager</p>
           </div>
           <div className="card bg-base-100 shadow-lg p-6">
             <img src="team3.jpg" alt="Team Member" className="rounded-full w-24 h-24 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-base-content">Carlos Reyes</h3>
+            <h3 className="text-xl font-semibold text-base-content">Marlou Sama</h3>
             <p className="text-gray-500">Volunteer Coordinator</p>
           </div>
         </div>
