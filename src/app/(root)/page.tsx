@@ -16,8 +16,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-      >
-          {/* Left: Hero Content */}
+          >
           <div className="text-center lg:text-left max-w-lg">
             <h1 className="mb-5 text-4xl md:text-5xl font-bold text-base-content">
               Protect Cebu’s Coastline – One Cleanup at a Time
@@ -32,7 +31,6 @@ export default function Home() {
             </div>
           </div>
           </motion.div>
-          {/* Right: Stats Section */}
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -76,7 +74,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* About Section */}
       <section id="about" className="py-16 px-6 text-center bg-base-100">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-4xl font-bold mb-4 text-base-content">About Us</h2>

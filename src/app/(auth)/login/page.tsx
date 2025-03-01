@@ -1,25 +1,55 @@
+"use client"
+import { loginUser } from '@/app/actions/users'
 import Link from 'next/link'
-import React from 'react'
+import { redirect } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import Swal from 'sweetalert2'
 
-const page = () => {
+const Page = () => {
+  const [message, setMessage] = useState("")
+  const [success, setSuccess] = useState(false)
+  
+  const handleSubmit = async (formData : FormData) => {
+    const result = await loginUser(formData)
+
+    if (result)
+    {
+      setMessage(result.message)
+      setSuccess(result.success)
+    }
+  }
+
+  useEffect(() => {
+    if (message) {
+      Swal.fire({
+        title: success ? 'Success' : 'Oops...',
+        text: message,
+        icon: success ? 'success' : 'error'
+      })
+    }
+    if (!success){
+      return
+    }
+    return redirect('/dashboard')
+  },[message,success])
   return (
      <div className="min-h-screen flex items-center justify-center bg-base-200">
       <div className="card w-full max-w-sm shadow-lg bg-base-100 p-8">
         <h2 className="text-3xl font-bold text-center text-base-content mb-6">Login</h2>
         
-        <form>
+        <form action={handleSubmit}>
           <div className="form-control mb-4">
             <label className="label">
               <span className="label-text text-base-content">Email</span>
             </label>
-            <input type="email" placeholder="Enter your email" className="input input-bordered" required />
+            <input type="email" placeholder="Enter your email" className="input input-bordered" name="email" required />
           </div>
 
           <div className="form-control mb-4">
             <label className="label">
               <span className="label-text text-base-content">Password</span>
             </label>
-            <input type="password" placeholder="Enter your password" className="input input-bordered" required />
+            <input type="password" placeholder="Enter your password" className="input input-bordered" name="password" required />
           </div>
 
           <div className="flex justify-between items-center mb-4">
@@ -51,4 +81,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
