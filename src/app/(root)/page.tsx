@@ -60,9 +60,9 @@ export default function Home() {
         </div>
         
         {/* Wave Background */}
-        <div className="absolute bottom-0 left-0 w-full">
+        <div className="absolute bottom-0 left-0 w-full -mb-2">
           <Wave
-            fill="rgb(59,130,246,0.5)" /* Blue with transparency */
+            fill="#3B82F6" /* Blue with transparency */
             paused={false}
             options={{
               height: 10,
@@ -73,11 +73,10 @@ export default function Home() {
           />
         </div>
       </div>
-
-      <section id="about" className="py-16 px-6 text-center bg-base-100">
+      <section id="about" className="py-16 px-6 text-center bg-[#3B82F6]">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl font-bold mb-4 text-base-content">About Us</h2>
-          <p className="text-lg text-base-content">
+          <h2 className="text-4xl font-bold mb-4 text-white">About Us</h2>
+          <p className="text-lg text-white">
             BlueWave Cebu is dedicated to preserving our beautiful coastline through community-driven cleanups.
             We believe in action, education, and sustainable efforts to keep our beaches clean for future generations.
           </p>
