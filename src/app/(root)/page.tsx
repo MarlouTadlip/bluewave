@@ -3,6 +3,7 @@ import React from "react";
 import Wave from "react-wavify";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { User } from 'lucide-react'
 
 export default function Home() {
   return (
@@ -62,7 +63,7 @@ export default function Home() {
         {/* Wave Background */}
         <div className="absolute bottom-0 left-0 w-full -mb-2">
           <Wave
-            fill="#3B82F6" /* Blue with transparency */
+            fill="#3B82F6" 
             paused={false}
             options={{
               height: 10,
@@ -93,18 +94,18 @@ export default function Home() {
         <h2 className="text-4xl font-bold mb-8 text-base-content">Meet the Team</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           <div className="card bg-base-100 shadow-lg p-6">
-            <img src="team1.jpg" alt="Team Member" className="rounded-full w-24 h-24 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-base-content">Marlou Sama</h3>
+            <User className="rounded-full w-24 h-24 mx-auto mb-4"/>
+            <h3 className="text-xl font-semibold text-base-content">Marlou</h3>
             <p className="text-gray-500">Founder</p>
           </div>
           <div className="card bg-base-100 shadow-lg p-6">
-            <img src="team2.jpg" alt="Team Member" className="rounded-full w-24 h-24 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-base-content">Marlou Sama</h3>
+            <User className="rounded-full w-24 h-24 mx-auto mb-4"/>
+            <h3 className="text-xl font-semibold text-base-content">C</h3>
             <p className="text-gray-500">Project Manager</p>
           </div>
           <div className="card bg-base-100 shadow-lg p-6">
-            <img src="team3.jpg" alt="Team Member" className="rounded-full w-24 h-24 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-base-content">Marlou Sama</h3>
+            <User className="rounded-full w-24 h-24 mx-auto mb-4"/>
+            <h3 className="text-xl font-semibold text-base-content">Tadlip</h3>
             <p className="text-gray-500">Volunteer Coordinator</p>
           </div>
         </div>
