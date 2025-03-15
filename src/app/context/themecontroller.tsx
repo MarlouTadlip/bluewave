@@ -5,7 +5,7 @@ import { themeChange } from "theme-change";
 
 export default function ThemeSwitcher() {
   useEffect(() => {
-    themeChange(false); // Initialize theme change
+    themeChange(false); 
   }, []);
 
   return (

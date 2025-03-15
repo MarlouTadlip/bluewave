@@ -1,359 +1,273 @@
-"use client"
-import { useState } from 'react';
-import Head from 'next/head';
-import { 
-  BarChart, Bar, LineChart, Line, PieChart, Pie, 
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
-  ResponsiveContainer, Cell 
-} from 'recharts';
-import { Calendar, MapPin, Users, Clock, Trash2, Compass, ChevronDown } from 'lucide-react';
+import { Calendar, Clock, ChevronRight, Award, Trash2, MapPin,User } from "lucide-react"
+import Link from "next/link"
 
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  
-  // Sample data - would be fetched from API in a real application
-  const eventData = [
-    { name: 'Mactan Beach', volunteers: 45, trashCollected: 132 },
-    { name: 'Punta Engaño', volunteers: 30, trashCollected: 87 },
-    { name: 'Cordova Shore', volunteers: 60, trashCollected: 203 },
-    { name: 'Talisay Coast', volunteers: 25, trashCollected: 65 },
-    { name: 'Liloan Beach', volunteers: 35, trashCollected: 112 },
-  ];
-  
-  const trashCategoryData = [
-    { name: 'Plastics', value: 45 },
-    { name: 'Fishing Gear', value: 20 },
-    { name: 'Glass', value: 15 },
-    { name: 'Metal', value: 10 },
-    { name: 'Others', value: 10 },
-  ];
-  
-  const monthlyData = [
-    { month: 'Jan', events: 3, volunteers: 85, trashKg: 230 },
-    { month: 'Feb', events: 4, volunteers: 120, trashKg: 315 },
-    { month: 'Mar', events: 5, volunteers: 175, trashKg: 422 },
-    { month: 'Apr', events: 3, volunteers: 95, trashKg: 265 },
-    { month: 'May', events: 6, volunteers: 210, trashKg: 510 },
-    { month: 'Jun', events: 5, volunteers: 185, trashKg: 440 },
-  ];
-  
-  const upcomingEvents = [
-    { id: 1, title: 'Mactan Cleanup Drive', location: 'Mactan Beach', date: '2025-03-05', registeredVolunteers: 32, maxVolunteers: 50 },
-    { id: 2, title: 'Punta Engaño Restoration', location: 'Punta Engaño', date: '2025-03-12', registeredVolunteers: 24, maxVolunteers: 40 },
-    { id: 3, title: 'Cordova Coastal Care', location: 'Cordova Shore', date: '2025-03-19', registeredVolunteers: 45, maxVolunteers: 60 },
-  ];
-  
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
-
+export default function UserDashboard() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Head>
-        <title>BlueWave Cebu Dashboard</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      
-      {/* Navbar */}
-      <div className="navbar bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
-        <div className="flex-1">
-          <div className="flex items-center">
-            <Compass className="w-6 h-6 mr-2" />
-            <span className="text-xl font-bold">BlueWave Cebu</span>
-          </div>
-        </div>
-        <div className="flex-none gap-2">
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <img src="/api/placeholder/40/40" alt="User avatar" />
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-primary">My Dashboard</h1>
+        <p className="text-base-content/70">Welcome back! Here&apos;s an overview of your BlueWave activities.</p>
+      </div>
+
+      {/* User Profile Summary */}
+      <div className="card bg-base-100 shadow-lg">
+        <div className="card-body p-0">
+          <div className="bg-gradient-to-r from-primary to-secondary h-24 relative">
+            <div className="absolute -bottom-12 left-6">
+              <div className="avatar">
+                <div className="w-24 h-24 rounded-full ring ring-base-100 ring-offset-base-100 ring-offset-2">
+                  <User size={100}/>
+                </div>
               </div>
-            </label>
-            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-gray-800">
-              <li><a>Profile</a></li>
-              <li><a>Settings</a></li>
-              <li><a>Logout</a></li>
-            </ul>
+            </div>
+          </div>
+          <div className="pt-16 pb-6 px-6">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+              <div className="space-y-1 flex-1">
+                <h2 className="text-2xl font-bold">John Doe</h2>
+                <p className="text-base-content/70">Volunteer since January 2025</p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <div className="badge badge-primary">Beach Cleanup</div>
+                  <div className="badge badge-secondary">Coastal Cleanup</div>
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <button className="btn btn-primary">Edit Profile</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 bg-white shadow-md h-screen pt-4 hidden lg:block">
-          <ul className="menu p-4 text-gray-700">
-            <li className={activeTab === 'dashboard' ? 'bg-blue-100 rounded-lg' : ''}>
-              <a onClick={() => setActiveTab('dashboard')} className="flex items-center py-3">
-                <span className="i-carbon-dashboard mr-3"></span>
-                Dashboard
-              </a>
-            </li>
-            <li className={activeTab === 'events' ? 'bg-blue-100 rounded-lg' : ''}>
-              <a onClick={() => setActiveTab('events')} className="flex items-center py-3">
-                <Calendar className="mr-3 w-5 h-5" />
-                Events
-              </a>
-            </li>
-            <li className={activeTab === 'locations' ? 'bg-blue-100 rounded-lg' : ''}>
-              <a onClick={() => setActiveTab('locations')} className="flex items-center py-3">
-                <MapPin className="mr-3 w-5 h-5" />
-                Locations
-              </a>
-            </li>
-            <li className={activeTab === 'volunteers' ? 'bg-blue-100 rounded-lg' : ''}>
-              <a onClick={() => setActiveTab('volunteers')} className="flex items-center py-3">
-                <Users className="mr-3 w-5 h-5" />
-                Volunteers
-              </a>
-            </li>
-            <li className={activeTab === 'reports' ? 'bg-blue-100 rounded-lg' : ''}>
-              <a onClick={() => setActiveTab('reports')} className="flex items-center py-3">
-                <Trash2 className="mr-3 w-5 h-5" />
-                Cleanup Data
-              </a>
-            </li>
-          </ul>
-        </div>
-        
-        {/* Mobile sidebar */}
-        <div className="drawer lg:hidden w-full">
-          <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content">
-            <label htmlFor="my-drawer" className="btn btn-ghost drawer-button m-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-              </svg>
-            </label>
-          </div> 
-          <div className="drawer-side">
-            <label htmlFor="my-drawer" className="drawer-overlay"></label>
-            <ul className="menu p-4 w-64 h-full bg-white text-gray-700">
-              <li className={activeTab === 'dashboard' ? 'bg-blue-100 rounded-lg' : ''}>
-                <a onClick={() => setActiveTab('dashboard')} className="flex items-center py-3">
-                  <span className="i-carbon-dashboard mr-3"></span>
-                  Dashboard
-                </a>
-              </li>
-              <li className={activeTab === 'events' ? 'bg-blue-100 rounded-lg' : ''}>
-                <a onClick={() => setActiveTab('events')} className="flex items-center py-3">
-                  <Calendar className="mr-3 w-5 h-5" />
-                  Events
-                </a>
-              </li>
-              <li className={activeTab === 'locations' ? 'bg-blue-100 rounded-lg' : ''}>
-                <a onClick={() => setActiveTab('locations')} className="flex items-center py-3">
-                  <MapPin className="mr-3 w-5 h-5" />
-                  Locations
-                </a>
-              </li>
-              <li className={activeTab === 'volunteers' ? 'bg-blue-100 rounded-lg' : ''}>
-                <a onClick={() => setActiveTab('volunteers')} className="flex items-center py-3">
-                  <Users className="mr-3 w-5 h-5" />
-                  Volunteers
-                </a>
-              </li>
-              <li className={activeTab === 'reports' ? 'bg-blue-100 rounded-lg' : ''}>
-                <a onClick={() => setActiveTab('reports')} className="flex items-center py-3">
-                  <Trash2 className="mr-3 w-5 h-5" />
-                  Cleanup Data
-                </a>
-              </li>
-            </ul>
+
+      {/* Personal Statistics */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="stats shadow bg-base-100">
+          <div className="stat">
+            <div className="stat-figure text-primary">
+              <Calendar className="h-8 w-8" />
+            </div>
+            <div className="stat-title">Events Attended</div>
+            <div className="stat-value">12</div>
+            <div className="stat-desc text-success">+2 from last month</div>
           </div>
         </div>
-        
-        <div className="flex-1 p-6 lg:ml-0">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">Coastal Cleanup Dashboard</h1>
-            <p className="text-gray-600">BlueWave Cebus operation overview</p>
+
+        <div className="stats shadow bg-base-100">
+          <div className="stat">
+            <div className="stat-figure text-secondary">
+              <Clock className="h-8 w-8" />
+            </div>
+            <div className="stat-title">Volunteer Hours</div>
+            <div className="stat-value">36 hrs</div>
+            <div className="stat-desc text-success">+6 hrs from last month</div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div className="stats shadow bg-white">
-              <div className="stat">
-                <div className="stat-figure text-blue-500">
-                  <Calendar className="w-8 h-8" />
+        </div>
+      </div>
+
+      <div className="tabs tabs-boxed">
+        <a className="tab tab-active">Upcoming Events</a>
+        <a className="tab">Participation History</a>
+        <a className="tab">My Impact</a>
+      </div>
+
+      {/* Upcoming Events Tab Content */}
+      <div className="card bg-base-100 shadow-lg">
+        <div className="card-body">
+          <h2 className="card-title">Registered Events</h2>
+          <div className="space-y-4">
+            {upcomingEvents.map((event, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-4 p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
+              >
+                <div className="avatar placeholder">
+                  <div className="bg-primary text-primary-content rounded-full w-12">
+                    <span>
+                      <Calendar className="h-6 w-6" />
+                    </span>
+                  </div>
                 </div>
-                <div className="stat-title">Total Events</div>
-                <div className="stat-value text-blue-500">42</div>
-                <div className="stat-desc">Jan 1st - Mar 1st</div>
-              </div>
-            </div>
-            
-            <div className="stats shadow bg-white">
-              <div className="stat">
-                <div className="stat-figure text-green-500">
-                  <Users className="w-8 h-8" />
+                <div className="flex-1">
+                  <h3 className="font-medium">{event.name}</h3>
+                  <p className="text-sm text-base-content/70 flex items-center gap-1 mt-1">
+                    <Calendar className="h-3.5 w-3.5" /> {event.date} • <MapPin className="h-3.5 w-3.5" />{" "}
+                    {event.location}
+                  </p>
                 </div>
-                <div className="stat-title">Volunteers</div>
-                <div className="stat-value text-green-500">1,200</div>
-                <div className="stat-desc">↗︎ 40 (3.3%)</div>
+                <Link href={`/dashboard/events/${index}`} className="btn btn-sm btn-outline btn-primary">
+                  View Details
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Link>
               </div>
-            </div>
-            
-            <div className="stats shadow bg-white">
-              <div className="stat">
-                <div className="stat-figure text-orange-500">
-                  <Trash2 className="w-8 h-8" />
-                </div>
-                <div className="stat-title">Trash Collected</div>
-                <div className="stat-value text-orange-500">2.4t</div>
-                <div className="stat-desc">↗︎ 300kg (14%)</div>
-              </div>
-            </div>
-            
-            <div className="stats shadow bg-white">
-              <div className="stat">
-                <div className="stat-figure text-purple-500">
-                  <Clock className="w-8 h-8" />
-                </div>
-                <div className="stat-title">Volunteer Hours</div>
-                <div className="stat-value text-purple-500">4.2k</div>
-                <div className="stat-desc">Jan 1st - Mar 1st</div>
-              </div>
-            </div>
+            ))}
           </div>
-          
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div className="card bg-white shadow-md">
-              <div className="card-body">
-                <h2 className="card-title text-gray-800">Events & Trash Collected</h2>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={eventData}
-                      margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                      }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Legend />
-                      <Bar yAxisId="left" dataKey="volunteers" fill="#8884d8" name="Volunteers" />
-                      <Bar yAxisId="right" dataKey="trashCollected" fill="#82ca9d" name="Trash (kg)" />
-                    </BarChart>
-                  </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Participation History Tab Content (Hidden by default) */}
+      <div className="hidden">
+        <div className="card bg-base-100 shadow-lg">
+          <div className="card-body">
+            <h2 className="card-title">Past Participation</h2>
+            <div className="space-y-4">
+              {participationHistory.map((event, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-4 p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
+                >
+                  <div className="avatar placeholder">
+                    <div className="bg-success text-success-content rounded-full w-12">
+                      <span>
+                        <Clock className="h-6 w-6" />
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium">{event.name}</h3>
+                    <p className="text-sm text-base-content/70 flex items-center gap-1 mt-1">
+                      <Calendar className="h-3.5 w-3.5" /> {event.date} • <Clock className="h-3.5 w-3.5" />{" "}
+                      {event.hours} hours
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-success">{event.trashCollected}</p>
+                    <p className="text-xs text-base-content/70">Trash collected</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            <div className="card bg-white shadow-md">
-              <div className="card-body">
-                <h2 className="card-title text-gray-800">Types of Trash Collected</h2>
-                <div className="h-64 flex justify-center">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={trashCategoryData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        paddingAngle={5}
-                        dataKey="value"
-                        label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {trashCategoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-          
-          <div className="card bg-white shadow-md mb-6">
-            <div className="card-body">
-              <h2 className="card-title text-gray-800">Monthly Progress</h2>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={monthlyData}
-                    margin={{
-                      top: 5,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="events" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="volunteers" stroke="#82ca9d" />
-                    <Line type="monotone" dataKey="trashKg" stroke="#ffc658" />
-                  </LineChart>
-                </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* My Impact Tab Content (Hidden by default) */}
+      <div className="hidden">
+        <div className="card bg-base-100 shadow-lg">
+          <div className="card-body">
+            <h2 className="card-title">Environmental Impact</h2>
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <div className="badge badge-primary badge-xs"></div>
+                      Plastic Waste
+                    </span>
+                    <span className="text-sm font-medium">25 kg</span>
+                  </div>
+                  <progress className="progress progress-primary w-full" value="55" max="100"></progress>
+                  <p className="text-xs text-base-content/70">55% of your total collection</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <div className="badge badge-success badge-xs"></div>
+                      Metal Waste
+                    </span>
+                    <span className="text-sm font-medium">10 kg</span>
+                  </div>
+                  <progress className="progress progress-success w-full" value="22" max="100"></progress>
+                  <p className="text-xs text-base-content/70">22% of your total collection</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <div className="badge badge-secondary badge-xs"></div>
+                      Glass
+                    </span>
+                    <span className="text-sm font-medium">5 kg</span>
+                  </div>
+                  <progress className="progress progress-secondary w-full" value="11" max="100"></progress>
+                  <p className="text-xs text-base-content/70">11% of your total collection</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <div className="badge badge-warning badge-xs"></div>
+                      Other Waste
+                    </span>
+                    <span className="text-sm font-medium">5 kg</span>
+                  </div>
+                  <progress className="progress progress-warning w-full" value="11" max="100"></progress>
+                  <p className="text-xs text-base-content/70">11% of your total collection</p>
+                </div>
               </div>
-            </div>
-          </div>
-          
-          {/* Upcoming Events */}
-          <div className="card bg-white shadow-md">
-            <div className="card-body">
-              <h2 className="card-title text-gray-800">Upcoming Cleanup Events</h2>
-              <div className="overflow-x-auto">
-                <table className="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th>Event</th>
-                      <th>Location</th>
-                      <th>Date</th>
-                      <th>Volunteers</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {upcomingEvents.map((event) => (
-                      <tr key={event.id}>
-                        <td>{event.title}</td>
-                        <td>{event.location}</td>
-                        <td>{new Date(event.date).toLocaleDateString()}</td>
-                        <td>
-                          <div className="flex items-center">
-                            <progress 
-                              className="progress progress-info w-24 mr-2" 
-                              value={event.registeredVolunteers} 
-                              max={event.maxVolunteers}
-                            ></progress>
-                            <span>{event.registeredVolunteers}/{event.maxVolunteers}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="dropdown dropdown-end">
-                            <label tabIndex={0} className="btn btn-sm btn-ghost">
-                              <ChevronDown />
-                            </label>
-                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                              <li><a>View Details</a></li>
-                              <li><a>Edit Event</a></li>
-                              <li><a>Manage Volunteers</a></li>
-                            </ul>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="card-actions justify-end mt-4">
-                <button className="btn btn-primary">View All Events</button>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <div className="card bg-base-200">
+                  <div className="card-body p-4 flex items-center gap-4">
+                    <div className="avatar placeholder">
+                      <div className="bg-primary text-primary-content rounded-full w-12">
+                        <span>
+                          <Award className="h-6 w-6" />
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Beach Protector</h3>
+                      <p className="text-sm text-base-content/70">Collected 25kg+ of beach waste</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card bg-base-200">
+                  <div className="card-body p-4 flex items-center gap-4">
+                    <div className="avatar placeholder">
+                      <div className="bg-success text-success-content rounded-full w-12">
+                        <span>
+                          <Trash2 className="h-6 w-6" />
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Waste Warrior</h3>
+                      <p className="text-sm text-base-content/70">Participated in 10+ cleanup events</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
+
+const upcomingEvents = [
+  {
+    name: "Mactan Beach Cleanup",
+    date: "March 15, 2025",
+    location: "Mactan Newtown Beach",
+  },
+  {
+    name: "Talisay Coastal Cleanup",
+    date: "March 22, 2025",
+    location: "Talisay City Boardwalk",
+  },
+]
+
+const participationHistory = [
+  {
+    name: "Talisay Coastal Cleanup",
+    date: "February 15, 2025",
+    hours: 3,
+    trashCollected: "15 kg",
+  },
+  {
+    name: "Liloan Beach Cleanup",
+    date: "January 28, 2025",
+    hours: 4,
+    trashCollected: "18 kg",
+  },
+  {
+    name: "Mactan Beach Cleanup",
+    date: "January 10, 2025",
+    hours: 3,
+    trashCollected: "12 kg",
+  },
+]
+
