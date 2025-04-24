@@ -1,12 +1,24 @@
-import { Calendar, Clock, ChevronRight, Award, Trash2, MapPin,User } from "lucide-react"
-import Link from "next/link"
+import {
+  Calendar,
+  Clock,
+  ChevronRight,
+  Award,
+  Trash2,
+  MapPin,
+  User,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function UserDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-primary">My Dashboard</h1>
-        <p className="text-base-content/70">Welcome back! Here&apos;s an overview of your BlueWave activities.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-primary">
+          My Dashboard
+        </h1>
+        <p className="text-base-content/70">
+          Welcome back! Here&apos;s an overview of your BlueWave activities.
+        </p>
       </div>
 
       {/* User Profile Summary */}
@@ -16,7 +28,7 @@ export default function UserDashboard() {
             <div className="absolute -bottom-12 left-6">
               <div className="avatar">
                 <div className="w-24 h-24 rounded-full ring ring-base-100 ring-offset-base-100 ring-offset-2">
-                  <User size={100}/>
+                  <User size={100} />
                 </div>
               </div>
             </div>
@@ -25,7 +37,9 @@ export default function UserDashboard() {
             <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
               <div className="space-y-1 flex-1">
                 <h2 className="text-2xl font-bold">John Doe</h2>
-                <p className="text-base-content/70">Volunteer since January 2025</p>
+                <p className="text-base-content/70">
+                  Volunteer since January 2025
+                </p>
                 <div className="flex flex-wrap gap-2 mt-3">
                   <div className="badge badge-primary">Beach Cleanup</div>
                   <div className="badge badge-secondary">Coastal Cleanup</div>
@@ -90,11 +104,14 @@ export default function UserDashboard() {
                 <div className="flex-1">
                   <h3 className="font-medium">{event.name}</h3>
                   <p className="text-sm text-base-content/70 flex items-center gap-1 mt-1">
-                    <Calendar className="h-3.5 w-3.5" /> {event.date} • <MapPin className="h-3.5 w-3.5" />{" "}
-                    {event.location}
+                    <Calendar className="h-3.5 w-3.5" /> {event.date} •{" "}
+                    <MapPin className="h-3.5 w-3.5" /> {event.location}
                   </p>
                 </div>
-                <Link href={`/dashboard/events/${index}`} className="btn btn-sm btn-outline btn-primary">
+                <Link
+                  href={`/dashboard/events/${index}`}
+                  className="btn btn-sm btn-outline btn-primary"
+                >
                   View Details
                   <ChevronRight className="ml-1 h-4 w-4" />
                 </Link>
@@ -125,13 +142,17 @@ export default function UserDashboard() {
                   <div className="flex-1">
                     <h3 className="font-medium">{event.name}</h3>
                     <p className="text-sm text-base-content/70 flex items-center gap-1 mt-1">
-                      <Calendar className="h-3.5 w-3.5" /> {event.date} • <Clock className="h-3.5 w-3.5" />{" "}
-                      {event.hours} hours
+                      <Calendar className="h-3.5 w-3.5" /> {event.date} •{" "}
+                      <Clock className="h-3.5 w-3.5" /> {event.hours} hours
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-success">{event.trashCollected}</p>
-                    <p className="text-xs text-base-content/70">Trash collected</p>
+                    <p className="font-medium text-success">
+                      {event.trashCollected}
+                    </p>
+                    <p className="text-xs text-base-content/70">
+                      Trash collected
+                    </p>
                   </div>
                 </div>
               ))}
@@ -155,8 +176,14 @@ export default function UserDashboard() {
                     </span>
                     <span className="text-sm font-medium">25 kg</span>
                   </div>
-                  <progress className="progress progress-primary w-full" value="55" max="100"></progress>
-                  <p className="text-xs text-base-content/70">55% of your total collection</p>
+                  <progress
+                    className="progress progress-primary w-full"
+                    value="55"
+                    max="100"
+                  ></progress>
+                  <p className="text-xs text-base-content/70">
+                    55% of your total collection
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -167,8 +194,14 @@ export default function UserDashboard() {
                     </span>
                     <span className="text-sm font-medium">10 kg</span>
                   </div>
-                  <progress className="progress progress-success w-full" value="22" max="100"></progress>
-                  <p className="text-xs text-base-content/70">22% of your total collection</p>
+                  <progress
+                    className="progress progress-success w-full"
+                    value="22"
+                    max="100"
+                  ></progress>
+                  <p className="text-xs text-base-content/70">
+                    22% of your total collection
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -179,8 +212,14 @@ export default function UserDashboard() {
                     </span>
                     <span className="text-sm font-medium">5 kg</span>
                   </div>
-                  <progress className="progress progress-secondary w-full" value="11" max="100"></progress>
-                  <p className="text-xs text-base-content/70">11% of your total collection</p>
+                  <progress
+                    className="progress progress-secondary w-full"
+                    value="11"
+                    max="100"
+                  ></progress>
+                  <p className="text-xs text-base-content/70">
+                    11% of your total collection
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -191,8 +230,14 @@ export default function UserDashboard() {
                     </span>
                     <span className="text-sm font-medium">5 kg</span>
                   </div>
-                  <progress className="progress progress-warning w-full" value="11" max="100"></progress>
-                  <p className="text-xs text-base-content/70">11% of your total collection</p>
+                  <progress
+                    className="progress progress-warning w-full"
+                    value="11"
+                    max="100"
+                  ></progress>
+                  <p className="text-xs text-base-content/70">
+                    11% of your total collection
+                  </p>
                 </div>
               </div>
 
@@ -208,7 +253,9 @@ export default function UserDashboard() {
                     </div>
                     <div>
                       <h3 className="font-medium">Beach Protector</h3>
-                      <p className="text-sm text-base-content/70">Collected 25kg+ of beach waste</p>
+                      <p className="text-sm text-base-content/70">
+                        Collected 25kg+ of beach waste
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -224,7 +271,9 @@ export default function UserDashboard() {
                     </div>
                     <div>
                       <h3 className="font-medium">Waste Warrior</h3>
-                      <p className="text-sm text-base-content/70">Participated in 10+ cleanup events</p>
+                      <p className="text-sm text-base-content/70">
+                        Participated in 10+ cleanup events
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -234,7 +283,7 @@ export default function UserDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 const upcomingEvents = [
@@ -248,7 +297,7 @@ const upcomingEvents = [
     date: "March 22, 2025",
     location: "Talisay City Boardwalk",
   },
-]
+];
 
 const participationHistory = [
   {
@@ -269,5 +318,4 @@ const participationHistory = [
     hours: 3,
     trashCollected: "12 kg",
   },
-]
-
+];
