@@ -14,14 +14,104 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String   @default("")
-  salt          String   @default("")
-  name          String
-  phone         String
-  role          String   @default("VOLUNTEER")
-  profile_image String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  userId         String          @id @default(cuid())
+  employeeId     String?         @unique
+  email          String          @unique
+  passwordHash   String          @default("")
+  salt           String          @default("")
+  fullName       String
+  phoneNumber    String
+  role           String          @default("VOLUNTEER")
+  profile_image  String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  events         Event[]
+  participations Participation[]
+  cleanUpData    CleanUpData[]
+  attendance     Attendance[]
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [userId])
+  userId    String
+  date      DateTime
+  attended  Boolean
+  filename  String
+  salary    Float? // <--- Add this line
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date], name: "userId_date")
+}
+
+model Location {
+  locationId  String  @id @default(cuid())
+  name        String
+  image       String
+  description String
+  latitude    Float
+  longitude   Float
+  events      Event[]
+}
+
+model Event {
+  eventId       String          @id @default(cuid())
+  title         String
+  description   String
+  organizerId   String
+  locationId    String
+  organizer     User            @relation(fields: [organizerId], references: [userId])
+  location      Location        @relation(fields: [locationId], references: [locationId])
+  Participation Participation[]
+  cleanUpData   CleanUpData[]
+  EventSponsor  EventSponsor[]
+}
+
+model Participation {
+  participationId String    @id @default(cuid())
+  userId          String
+  eventId         String
+  checkInTime     DateTime?
+  checkOutTime    DateTime?
+  user            User      @relation(fields: [userId], references: [userId])
+  event           Event     @relation(fields: [eventId], references: [eventId])
+}
+
+model Category {
+  categoryId  String        @id @default(cuid())
+  name        String
+  description String
+  iconURL     String
+  CleanUpData CleanUpData[]
+}
+
+model CleanUpData {
+  cleanupId      String   @id @default(cuid())
+  eventId        String
+  categoryId     String
+  totalWeight    Float
+  totalBags      Int
+  submittedBy    String
+  submissionDate DateTime @default(now())
+  event          Event    @relation(fields: [eventId], references: [eventId])
+  category       Category @relation(fields: [categoryId], references: [categoryId])
+  User           User     @relation(fields: [submittedBy], references: [userId])
+}
+
+model Sponsor {
+  sponsorId    String         @id @default(cuid())
+  name         String
+  email        String
+  image        String
+  phoneNumber  String
+  EventSponsor EventSponsor[]
+}
+
+model EventSponsor {
+  eventSponsorId String  @id @default(cuid())
+  eventId        String
+  sponsorId      String
+  event          Event   @relation(fields: [eventId], references: [eventId])
+  sponsor        Sponsor @relation(fields: [sponsorId], references: [sponsorId])
 }
