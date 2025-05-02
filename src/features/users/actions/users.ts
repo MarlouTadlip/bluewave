@@ -33,11 +33,11 @@ export const createUser = async (formData: FormData) => {
 
   await prisma.user.create({
     data: {
-      name: name,
+      fullName: name,
       email: email,
       passwordHash: hashedPassword as unknown as string,
       salt: salt,
-      phone: phone,
+      phoneNumber: phone,
       profile_image: "",
     },
   });
@@ -73,7 +73,7 @@ export const loginUser = async (formData: FormData) => {
   if (!findUser) {
     return { success: false, message: "Invalid email/password" };
   }
-  await createSession(findUser.id);
+  await createSession(findUser.userId);
   return { success: true, message: "Login Successful" };
 };
 
@@ -81,7 +81,7 @@ export const loginUser = async (formData: FormData) => {
 export const updateProfileImage = async (url: string, id: string) => {
   await prisma.user.update({
     where: {
-      id: id,
+      userId: id,
     },
     data: {
       profile_image: url,
