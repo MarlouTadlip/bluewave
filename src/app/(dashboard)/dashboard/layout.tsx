@@ -97,7 +97,7 @@ export default function DashboardLayout({
       />
 
       <div className="drawer-content flex flex-col min-h-screen bg-base-200">
-        <div className="navbar bg-base-100 border-b sticky top-0 z-30">
+        <div className="navbar bg-base-100 sticky top-0 z-30">
           <div className="flex-none lg:hidden">
             <label htmlFor="drawer-toggle" className="btn btn-square btn-ghost">
               <Menu className="h-5 w-5" />
@@ -175,8 +175,8 @@ export default function DashboardLayout({
 
       <div className="drawer-side z-40">
         <label htmlFor="drawer-toggle" className="drawer-overlay"></label>
-        <div className="menu p-4 w-64 h-full bg-base-100 text-base-content border-r">
-          <div className="flex items-center gap-2 mb-6 pb-4 border-b">
+        <div className="menu p-4 w-64 h-full bg-base-100 text-base-content">
+          <div className="flex items-center gap-2 mb-6 pb-4">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image src="/favicon.png" alt="logo" width={32} height={32} />
               <span className="text-xl font-bold">BlueWave</span>

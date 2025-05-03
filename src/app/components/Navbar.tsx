@@ -1,60 +1,77 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import ThemeSwitcher from "../context/themecontroller"
-import Link from "next/link"
-import { Home, Info, Users, Menu, X, Calendar, ImageIcon, MessageSquareQuote, ChevronDown } from "lucide-react"
+import { useState, useEffect } from "react";
+import ThemeSwitcher from "../context/themecontroller";
+import Link from "next/link";
+import {
+  Home,
+  Info,
+  Users,
+  Menu,
+  X,
+  Calendar,
+  ImageIcon,
+  MessageSquareQuote,
+  ChevronDown,
+} from "lucide-react";
 
 const Navbar = ({ handleScroll }: { handleScroll: (id: string) => void }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeSection, setActiveSection] = useState("home")
-  const [scrolled, setScrolled] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+  const [scrolled, setScrolled] = useState(false);
 
   // Toggle mobile menu
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   // Close mobile menu when clicking a link
   const handleNavClick = (id: string) => {
-    handleScroll(id)
-    setActiveSection(id)
-    setIsMenuOpen(false)
-  }
+    handleScroll(id);
+    setActiveSection(id);
+    setIsMenuOpen(false);
+  };
 
   // Track scroll position to change navbar style and detect active section
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY
+      const scrollPosition = window.scrollY;
 
       // Change navbar style when scrolled
       if (scrollPosition > 10) {
-        setScrolled(true)
+        setScrolled(true);
       } else {
-        setScrolled(false)
+        setScrolled(false);
       }
 
       // Detect active section based on scroll position
-      const sections = ["home", "about", "impact", "events", "team", "testimonials"]
+      const sections = [
+        "home",
+        "about",
+        "impact",
+        "events",
+        "team",
+        "testimonials",
+      ];
 
       for (const section of sections) {
-        const element = document.getElementById(section)
+        const element = document.getElementById(section);
         if (element) {
-          const rect = element.getBoundingClientRect()
+          const rect = element.getBoundingClientRect();
           // If the top of the section is near the top of the viewport
           if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section)
-            break
+            setActiveSection(section);
+            break;
           }
         }
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // Navigation items
   const navItems = [
@@ -63,27 +80,47 @@ const Navbar = ({ handleScroll }: { handleScroll: (id: string) => void }) => {
     { id: "impact", label: "Impact", icon: <ImageIcon className="w-4 h-4" /> },
     { id: "events", label: "Events", icon: <Calendar className="w-4 h-4" /> },
     { id: "team", label: "Team", icon: <Users className="w-4 h-4" /> },
-    { id: "testimonials", label: "Testimonials", icon: <MessageSquareQuote className="w-4 h-4" /> },
-  ]
+    {
+      id: "testimonials",
+      label: "Testimonials",
+      icon: <MessageSquareQuote className="w-4 h-4" />,
+    },
+  ];
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
-        scrolled ? "bg-base-100/95 backdrop-blur-md shadow-md" : "bg-base-100/80 backdrop-blur-sm"
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        scrolled
+          ? "bg-base-100/95 backdrop-blur-md shadow-md"
+          : "bg-base-100/80 backdrop-blur-sm"
       }`}
     >
       <div className="navbar container mx-auto px-4 py-2">
         {/* Navbar Start */}
         <div className="navbar-start">
           <div className="lg:hidden">
-            <button onClick={toggleMenu} className="btn btn-ghost btn-circle" aria-label="Toggle menu">
-              {isMenuOpen ? <X className="w-6 h-6 text-primary" /> : <Menu className="w-6 h-6" />}
+            <button
+              onClick={toggleMenu}
+              className="btn btn-ghost btn-circle"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6 text-primary" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
           <Link href="/" className="flex items-center gap-2 text-xl font-bold">
-            <img src="/favicon.png" alt="BlueWave Cebu logo" className="h-10 w-auto hidden lg:block" />
+            <img
+              src="/favicon.png"
+              alt="BlueWave Cebu logo"
+              className="h-10 w-auto hidden lg:block"
+            />
             <span className="text-primary">BlueWave</span>
-            <span className="text-base-content font-normal text-sm hidden md:inline-block">Cebu</span>
+            <span className="text-base-content font-normal text-sm hidden md:inline-block">
+              Cebu
+            </span>
           </Link>
         </div>
 
@@ -123,7 +160,10 @@ const Navbar = ({ handleScroll }: { handleScroll: (id: string) => void }) => {
             <div tabIndex={0} role="button" className="btn btn-sm btn-primary">
               Account <ChevronDown size={16} />
             </div>
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36 mt-2">
+            <ul
+              tabIndex={0}
+              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36 mt-2"
+            >
               <li>
                 <Link href="/login">Login</Link>
               </li>
@@ -148,7 +188,9 @@ const Navbar = ({ handleScroll }: { handleScroll: (id: string) => void }) => {
                 <button
                   onClick={() => handleNavClick(item.id)}
                   className={`flex items-center gap-2 ${
-                    activeSection === item.id ? "bg-primary/10 text-primary font-medium" : ""
+                    activeSection === item.id
+                      ? "bg-primary/10 text-primary font-medium"
+                      : ""
                   }`}
                   aria-current={activeSection === item.id ? "page" : undefined}
                 >
@@ -160,8 +202,7 @@ const Navbar = ({ handleScroll }: { handleScroll: (id: string) => void }) => {
         </nav>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
-
+export default Navbar;

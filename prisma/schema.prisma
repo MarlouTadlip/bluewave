@@ -25,24 +25,32 @@ model User {
   profile_image  String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  dailyRate      Float?
   events         Event[]
   participations Participation[]
   cleanUpData    CleanUpData[]
   attendance     Attendance[]
+  SalaryRecord   SalaryRecord[]
 }
 
 model Attendance {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [userId])
-  userId    String
-  date      DateTime
-  attended  Boolean
-  filename  String
-  salary    Float? // <--- Add this line
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  employeeId String
+  date       DateTime
+  attended   Boolean
+  user       User     @relation(fields: [employeeId], references: [employeeId])
+}
 
-  @@unique([userId, date], name: "userId_date")
+model SalaryRecord {
+  id          String @id @default(uuid())
+  employeeId  String
+  month       Int
+  year        Int
+  totalDays   Int
+  totalSalary Float
+  user        User   @relation(fields: [employeeId], references: [employeeId])
+
+  @@unique([employeeId, month, year])
 }
 
 model Location {
