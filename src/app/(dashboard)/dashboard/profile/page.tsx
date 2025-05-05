@@ -1,10 +1,94 @@
-import { Calendar, MapPin, Award } from "lucide-react";
-import ProfileImage from "@/features/users/components/profileimage";
-export default function page() {
+"use server";
+import { Calendar, MapPin } from "lucide-react";
+import { prisma } from "@/lib/db";
+import { getSession } from "@/features/users/actions/session";
+import Image from "next/image";
+import ProfileImageUpload from "../../../components/ProfileImageUpload";
+import ProfileForm from "../../../components/ProfileForm";
+import { Prisma } from "@prisma/client";
+
+export async function updateUser(formData: FormData) {
+  const session = await getSession();
+  if (!session || !session.userId) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  const fullName = formData.get("fullName") as string;
+  const email = formData.get("email") as string;
+  const phoneNumber = formData.get("phoneNumber") as string;
+
+  if (!fullName || !email || !phoneNumber) {
+    return { success: false, message: "All fields are required" };
+  }
+
+  try {
+    const existingUser = await prisma.user.findFirst({
+      where: { email, userId: { not: session.userId } },
+    });
+    if (existingUser) {
+      return { success: false, message: "Email is already in use" };
+    }
+
+    await prisma.user.update({
+      where: { userId: session.userId as string },
+      data: {
+        fullName,
+        email,
+        phoneNumber,
+      },
+    });
+
+    return { success: true, message: "Profile updated successfully" };
+  } catch {
+    return { success: false, message: "Failed to update profile" };
+  }
+}
+
+export default async function ProfilePage() {
+  const session = await getSession();
+  if (!session || !session.userId) {
+    return <div>Please log in to view your profile.</div>;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { userId: session.userId as string },
+    include: {
+      events: {
+        include: { location: true },
+      },
+      participations: {
+        include: {
+          event: { include: { location: true } },
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    return <div>User not found.</div>;
+  }
+
+  type UserWithRelations = Prisma.UserGetPayload<{
+    include: {
+      events: { include: { location: true } };
+      participations: { include: { event: { include: { location: true } } } };
+    };
+  }>;
+
+  const locations: string[] = [
+    ...new Set(
+      (user as UserWithRelations).participations
+        .map((p) => p.event.location.name)
+        .filter((name): name is string => Boolean(name))
+    ),
+  ];
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-primary">
+          My Profile
+        </h1>
         <p className="text-gray-500">View and edit your personal information</p>
       </div>
 
@@ -15,68 +99,17 @@ export default function page() {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex flex-col items-center gap-4">
                 <div className="avatar">
-                  <div className="w-32 h-32 rounded-full">
-                    <img src="/placeholder-user.jpg" alt="User" />
-                  </div>
+                  <Image
+                    src={user.profile_image || "/profile.png"}
+                    alt={user.fullName}
+                    width={128}
+                    height={128}
+                    className="rounded-full"
+                  />
                 </div>
-                <button className="btn btn-primary">Change Photo</button>
-                <ProfileImage />
+                <ProfileImageUpload userId={user.userId} />
               </div>
-              <div className="flex-1 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="form-control w-full">
-                    <label className="label">
-                      <span className="label-text">First Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered w-full"
-                      defaultValue="John"
-                    />
-                  </div>
-                  <div className="form-control w-full">
-                    <label className="label">
-                      <span className="label-text">Last Name</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered w-full"
-                      defaultValue="Doe"
-                    />
-                  </div>
-                </div>
-                <div className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text">Email</span>
-                  </label>
-                  <input
-                    type="email"
-                    className="input input-bordered w-full"
-                    defaultValue="john.doe@example.com"
-                  />
-                </div>
-                <div className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text">Phone Number</span>
-                  </label>
-                  <input
-                    type="tel"
-                    className="input input-bordered w-full"
-                    defaultValue="+63 912 345 6789"
-                  />
-                </div>
-                <div className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text">Address</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    defaultValue="123 Main St, Cebu City"
-                  />
-                </div>
-                <button className="btn btn-primary">Save Changes</button>
-              </div>
+              <ProfileForm user={user} />
             </div>
           </div>
         </div>
@@ -90,122 +123,28 @@ export default function page() {
                   <Calendar className="h-5 w-5 text-gray-500" />
                   <span>Volunteer Since</span>
                 </div>
-                <span className="font-medium">January 2025</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-gray-500" />
-                  <span>Volunteer Level</span>
-                </div>
-                <span className="font-medium">Level 3 (Eco Warrior)</span>
+                <span className="font-medium">
+                  {new Date(user.createdAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-gray-500" />
-                  <span>Preferred Locations</span>
+                  <span>Participated Locations</span>
                 </div>
                 <div className="flex gap-2">
-                  <span className="badge badge-outline">Mactan</span>
-                  <span className="badge badge-outline">Cordova</span>
-                </div>
-              </div>
-              <div className="pt-4">
-                <label className="label">
-                  <span className="label-text">Bio</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered w-full min-h-[100px]"
-                  defaultValue="Passionate about protecting Cebu's coastline and marine life. I enjoy participating in beach cleanups and mangrove restoration activities."
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title">Preferences</h2>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="label">
-                  <span className="label-text">
-                    Cleanup Activity Preferences
-                  </span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="form-control">
-                    <label className="label cursor-pointer justify-start gap-2">
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        defaultChecked
-                      />
-                      <span className="label-text">Beach Cleanup</span>
-                    </label>
-                  </div>
-                  <div className="form-control">
-                    <label className="label cursor-pointer justify-start gap-2">
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        defaultChecked
-                      />
-                      <span className="label-text">Mangrove Restoration</span>
-                    </label>
-                  </div>
-                  <div className="form-control">
-                    <label className="label cursor-pointer justify-start gap-2">
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        defaultChecked
-                      />
-                      <span className="label-text">Coastal Cleanup</span>
-                    </label>
-                  </div>
-                  <div className="form-control">
-                    <label className="label cursor-pointer justify-start gap-2">
-                      <input type="checkbox" className="checkbox" />
-                      <span className="label-text">River Cleanup</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="label">
-                  <span className="label-text">Notification Preferences</span>
-                </label>
-                <div className="space-y-2">
-                  <div className="form-control">
-                    <label className="label cursor-pointer">
-                      <span className="label-text">Email Notifications</span>
-                      <input
-                        type="checkbox"
-                        className="toggle"
-                        defaultChecked
-                      />
-                    </label>
-                  </div>
-                  <div className="form-control">
-                    <label className="label cursor-pointer">
-                      <span className="label-text">SMS Notifications</span>
-                      <input
-                        type="checkbox"
-                        className="toggle"
-                        defaultChecked
-                      />
-                    </label>
-                  </div>
-                  <div className="form-control">
-                    <label className="label cursor-pointer">
-                      <span className="label-text">Event Reminders</span>
-                      <input
-                        type="checkbox"
-                        className="toggle"
-                        defaultChecked
-                      />
-                    </label>
-                  </div>
+                  {locations.length > 0 ? (
+                    locations.map((loc) => (
+                      <span key={loc} className="badge badge-outline">
+                        {loc}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-500">None</span>
+                  )}
                 </div>
               </div>
               <button className="btn btn-primary w-full">
