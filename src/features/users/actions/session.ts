@@ -22,11 +22,26 @@ export async function createSession(userId: string) {
 
 export async function getSession() {
   const cookieStore = await cookies();
-  const sessionId = cookieStore.get("session");
-  if (!sessionId) return null;
+  const sessionCookie = cookieStore.get("session");
+  console.log("Session cookie retrieved:", sessionCookie);
+
+  if (!sessionCookie || !sessionCookie.value) {
+    console.log("No session cookie or value found");
+    return null;
+  }
+
+  const sessionId = sessionCookie.value;
+  console.log("Session ID from cookie:", sessionId);
 
   const userId = await redis.get(`session:${sessionId}`);
-  return userId ? { userId } : null;
+  console.log("User ID from Redis for sessionId:", sessionId, "is:", userId);
+
+  if (!userId) {
+    console.log("No userId found in Redis for sessionId:", sessionId);
+    return null;
+  }
+
+  return { userId };
 }
 
 export async function destroySession() {

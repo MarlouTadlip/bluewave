@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -25,6 +25,7 @@ model User {
   profile_image  String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  isSuspended    Boolean         @default(false) // New field for suspension
   dailyRate      Float?
   events         Event[]
   participations Participation[]
@@ -60,6 +61,7 @@ model Location {
   description String
   latitude    Float
   longitude   Float
+  isActive    Boolean @default(true)
   events      Event[]
 }
 
@@ -67,6 +69,7 @@ model Event {
   eventId       String          @id @default(cuid())
   title         String
   description   String
+  startDate     DateTime?
   organizerId   String
   locationId    String
   organizer     User            @relation(fields: [organizerId], references: [userId])
@@ -91,6 +94,7 @@ model Category {
   name        String
   description String
   iconURL     String
+  isActive    Boolean       @default(true)
   CleanUpData CleanUpData[]
 }
 
