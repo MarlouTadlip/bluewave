@@ -19,6 +19,12 @@ export const createUser = async (formData: FormData) => {
   if (password !== confirmpass) {
     return { success: false, message: "Passwords do not match" };
   }
+  if (!email.toLowerCase().endsWith(".com")) {
+    return {
+      success: false,
+      message: "Email must end with .com",
+    };
+  }
 
   const existingUser = await prisma.user.findFirst({
     where: {

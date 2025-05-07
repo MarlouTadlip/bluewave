@@ -9,7 +9,11 @@ import {
   toggleUserSuspension,
 } from "./actions/userActions";
 
-export default async function UsersPage() {
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams?: { error?: string; success?: string };
+}) {
   const session = await getSession();
   if (!session || typeof session.userId !== "string") {
     redirect("/login");
@@ -73,6 +77,44 @@ export default async function UsersPage() {
           Manage users, including creating, editing, and suspending user
           accounts
         </p>
+        {searchParams?.error && (
+          <div className="alert alert-error mt-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{searchParams.error}</span>
+          </div>
+        )}
+        {searchParams?.success && (
+          <div className="alert alert-success mt-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <span>{searchParams.success}</span>
+          </div>
+        )}
       </div>
 
       <div className="card bg-base-100 shadow-xl">
@@ -162,12 +204,24 @@ export default async function UsersPage() {
       <div className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Create New User</h3>
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              await createUser(formData);
-            }}
-          >
+          <div id="email-error-alert" className="alert alert-error hidden mt-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>Invalid Email Format</span>
+          </div>
+          <form id="create-user-form" action={createUser}>
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Full Name</span>
@@ -187,6 +241,8 @@ export default async function UsersPage() {
                 type="email"
                 name="email"
                 className="input input-bordered w-full"
+                pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$"
+                title="Invalid email format. Must end with .com"
                 required
               />
             </div>
@@ -238,6 +294,29 @@ export default async function UsersPage() {
         </div>
       </div>
 
+      {/* Client-side script for email validation */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            document.getElementById('create-user-form').addEventListener('submit', function(event) {
+              const emailInput = this.querySelector('input[name="email"]');
+              const email = emailInput.value.toLowerCase();
+              const errorAlert = document.getElementById('email-error-alert');
+              
+              if (!email.endsWith('.com')) {
+                event.preventDefault();
+                errorAlert.classList.remove('hidden');
+                setTimeout(() => {
+                  errorAlert.classList.add('hidden');
+                }, 3000); // Hide alert after 3 seconds
+              } else {
+                errorAlert.classList.add('hidden');
+              }
+            });
+          `,
+        }}
+      />
+
       {/* Edit User Modals */}
       {users.map((user) => (
         <React.Fragment key={user.userId}>
@@ -249,12 +328,7 @@ export default async function UsersPage() {
           <div className="modal">
             <div className="modal-box">
               <h3 className="font-bold text-lg">Edit User: {user.fullName}</h3>
-              <form
-                action={async (formData: FormData) => {
-                  "use server";
-                  await updateUser(user.userId, formData);
-                }}
-              >
+              <form action={updateUser.bind(null, user.userId)}>
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Full Name</span>
@@ -328,12 +402,7 @@ export default async function UsersPage() {
                 Are you sure you want to suspend this user? They will lose
                 access to the system until reinstated.
               </p>
-              <form
-                action={async () => {
-                  "use server";
-                  await toggleUserSuspension(user.userId, true);
-                }}
-              >
+              <form action={toggleUserSuspension.bind(null, user.userId, true)}>
                 <div className="modal-action">
                   <button type="submit" className="btn btn-error">
                     Suspend
@@ -437,10 +506,7 @@ export default async function UsersPage() {
                 access to the system.
               </p>
               <form
-                action={async () => {
-                  "use server";
-                  await toggleUserSuspension(user.userId, false);
-                }}
+                action={toggleUserSuspension.bind(null, user.userId, false)}
               >
                 <div className="modal-action">
                   <button type="submit" className="btn btn-success">

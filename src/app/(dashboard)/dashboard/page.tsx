@@ -275,20 +275,6 @@ export default async function UserDashboard() {
     );
 
     // Volunteer stats for organizers
-    const eventsAttended = user.participations.filter(
-      (p) => p.checkOutTime
-    ).length;
-    const totalHours = user.participations
-      .filter((p) => p.checkOutTime && p.checkInTime)
-      .reduce(
-        (sum, p) =>
-          sum +
-          Math.round(
-            (p.checkOutTime!.getTime() - p.checkInTime!.getTime()) /
-              (1000 * 60 * 60)
-          ),
-        0
-      );
 
     return (
       <div className="space-y-8">
@@ -338,7 +324,7 @@ export default async function UserDashboard() {
                   <Link href="/dashboard/profile" className="btn btn-primary">
                     Edit Profile
                   </Link>
-                  <Link href="/check-in" className="btn btn-secondary">
+                  <Link href="/dashboard/checkin" className="btn btn-secondary">
                     Manage Check-Ins
                   </Link>
                 </div>
@@ -374,36 +360,6 @@ export default async function UserDashboard() {
               <div className="stat-desc text-success">
                 {totalVolunteersManaged > 0
                   ? `+${totalVolunteersManaged} this year`
-                  : "Get started!"}
-              </div>
-            </div>
-          </div>
-
-          <div className="stats shadow bg-base-100">
-            <div className="stat">
-              <div className="stat-figure text-primary">
-                <Calendar className="h-8 w-8" />
-              </div>
-              <div className="stat-title">Events Attended</div>
-              <div className="stat-value">{eventsAttended}</div>
-              <div className="stat-desc text-success">
-                {eventsAttended > 0
-                  ? `+${eventsAttended} this year`
-                  : "Join an event!"}
-              </div>
-            </div>
-          </div>
-
-          <div className="stats shadow bg-base-100">
-            <div className="stat">
-              <div className="stat-figure text-secondary">
-                <Clock className="h-8 w-8" />
-              </div>
-              <div className="stat-title">Volunteer Hours</div>
-              <div className="stat-value">{totalHours} hrs</div>
-              <div className="stat-desc text-success">
-                {totalHours > 0
-                  ? `+${totalHours} hrs this year`
                   : "Get started!"}
               </div>
             </div>

@@ -1,329 +1,10 @@
-"use server";
-import { Calendar, Clock, Trash2, MapPin, Users, Download } from "lucide-react";
+import { Calendar, Clock, Trash2, MapPin, Users } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/features/users/actions/session";
-import { redirect } from "next/navigation";
-import { stringify } from "csv-stringify/sync";
-import { writeFile } from "fs/promises";
-import { join } from "path";
 import { JSX } from "react";
 
-// Server action to export statistics as CSV
-export async function exportStatistics(formData: FormData) {
-  // Extract and validate form data
-  const userId = formData.get("userId")?.toString();
-  const role = formData.get("role")?.toString();
-  if (!userId || !role || !["VOLUNTEER", "ORGANIZER", "ADMIN"].includes(role)) {
-    redirect(
-      `/dashboard/statistics?error=${encodeURIComponent(
-        "Invalid user ID or role"
-      )}`
-    );
-  }
-
-  // Fetch user data
-  const user = await prisma.user.findUnique({
-    where: { userId },
-    select: {
-      userId: true,
-      fullName: true,
-      role: true,
-      participations: {
-        include: { event: { include: { location: true } } },
-      },
-      cleanUpData: {
-        include: { category: true },
-      },
-      events: {
-        include: {
-          location: true,
-          Participation: true,
-          cleanUpData: { include: { category: true } },
-        },
-      },
-    },
-  });
-
-  if (!user) {
-    redirect(
-      `/dashboard/statistics?error=${encodeURIComponent("User not found")}`
-    );
-  }
-
-  // Prepare CSV data
-  let csvData: unknown[] = [];
-  const filename = `${user.fullName.replace(/\s+/g, "_")}_Statistics_${
-    new Date().toISOString().split("T")[0]
-  }.csv`;
-
-  try {
-    if (role === "VOLUNTEER") {
-      const eventsAttended = user.participations.filter(
-        (p) => p.checkOutTime
-      ).length;
-      const totalHours = user.participations
-        .filter((p) => p.checkInTime && p.checkOutTime)
-        .reduce(
-          (sum, p) =>
-            sum +
-            (p.checkOutTime!.getTime() - p.checkInTime!.getTime()) /
-              (1000 * 60 * 60),
-          0
-        );
-      const totalWaste = user.cleanUpData
-        .reduce((sum, c) => sum + c.totalWeight, 0)
-        .toFixed(2);
-      const uniqueLocations = [
-        ...new Set(
-          user.participations
-            .filter((p) => p.event.location.isActive)
-            .map((p) => p.event.location.name)
-        ),
-      ].length;
-      const wasteByCategory = user.cleanUpData.reduce((acc, data) => {
-        acc[data.category.name] =
-          (acc[data.category.name] || 0) + data.totalWeight;
-        return acc;
-      }, {} as Record<string, number>);
-      const wasteStats = Object.entries(wasteByCategory).map(
-        ([category, weight]) => ({
-          category,
-          weight: weight.toFixed(2),
-          percentage:
-            parseFloat(totalWaste) > 0
-              ? ((weight / parseFloat(totalWaste)) * 100).toFixed(0)
-              : "0",
-        })
-      );
-      const monthlyParticipation = user.participations
-        .filter((p) => p.checkOutTime && p.event.startDate)
-        .reduce((acc, p) => {
-          const monthYear = `${p.event.startDate!.getFullYear()}-${
-            p.event.startDate!.getMonth() + 1
-          }`;
-          acc[monthYear] = (acc[monthYear] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-      const last12Months = Array.from({ length: 12 }, (_, i) => {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        return `${date.getFullYear()}-${date.getMonth() + 1}`;
-      }).reverse();
-      const monthlyStats = last12Months.map((monthYear) => ({
-        month: new Date(`${monthYear}-01`).toLocaleString("en-US", {
-          month: "short",
-          year: "numeric",
-        }),
-        events: monthlyParticipation[monthYear] || 0,
-      }));
-
-      csvData = [
-        ["Volunteer Statistics"],
-        ["Metric", "Value"],
-        ["Events Attended", eventsAttended],
-        ["Volunteer Hours", `${totalHours.toFixed(1)} hrs`],
-        ["Waste Collected", `${totalWaste} kg`],
-        ["Locations Visited", uniqueLocations],
-        [],
-        ["Waste by Category"],
-        ["Category", "Weight (kg)", "Percentage"],
-        ...wasteStats.map((s) => [s.category, s.weight, `${s.percentage}%`]),
-        [],
-        ["Monthly Participation"],
-        ["Month", "Events"],
-        ...monthlyStats.map((s) => [s.month, s.events]),
-      ];
-    } else if (role === "ORGANIZER") {
-      const totalEvents = user.events.length;
-      const totalVolunteers = [
-        ...new Set(
-          user.events.flatMap((e) => e.Participation.map((p) => p.userId))
-        ),
-      ].length;
-      const totalWaste = user.events
-        .flatMap((e) => e.cleanUpData)
-        .reduce((sum, c) => sum + c.totalWeight, 0)
-        .toFixed(2);
-      const uniqueLocations = [
-        ...new Set(
-          user.events
-            .filter((e) => e.location.isActive)
-            .map((e) => e.location.name)
-        ),
-      ].length;
-      const wasteByCategory = user.events
-        .flatMap((e) => e.cleanUpData)
-        .reduce((acc, data) => {
-          acc[data.category.name] =
-            (acc[data.category.name] || 0) + data.totalWeight;
-          return acc;
-        }, {} as Record<string, number>);
-      const wasteStats = Object.entries(wasteByCategory).map(
-        ([category, weight]) => ({
-          category,
-          weight: weight.toFixed(2),
-          percentage:
-            parseFloat(totalWaste) > 0
-              ? ((weight / parseFloat(totalWaste)) * 100).toFixed(0)
-              : "0",
-        })
-      );
-      const monthlyEvents = user.events
-        .filter((e) => e.startDate)
-        .reduce((acc, e) => {
-          const monthYear = `${e.startDate!.getFullYear()}-${
-            e.startDate!.getMonth() + 1
-          }`;
-          acc[monthYear] = (acc[monthYear] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-      const last12Months = Array.from({ length: 12 }, (_, i) => {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        return `${date.getFullYear()}-${date.getMonth() + 1}`;
-      }).reverse();
-      const monthlyStats = last12Months.map((monthYear) => ({
-        month: new Date(`${monthYear}-01`).toLocaleString("en-US", {
-          month: "short",
-          year: "numeric",
-        }),
-        events: monthlyEvents[monthYear] || 0,
-      }));
-
-      csvData = [
-        ["Organizer Statistics"],
-        ["Metric", "Value"],
-        ["Events Organized", totalEvents],
-        ["Volunteers Managed", totalVolunteers],
-        ["Waste Collected", `${totalWaste} kg`],
-        ["Locations Used", uniqueLocations],
-        [],
-        ["Waste by Category"],
-        ["Category", "Weight (kg)", "Percentage"],
-        ...wasteStats.map((s) => [s.category, s.weight, `${s.percentage}%`]),
-        [],
-        ["Monthly Events"],
-        ["Month", "Events"],
-        ...monthlyStats.map((s) => [s.month, s.events]),
-      ];
-    } else if (role === "ADMIN") {
-      const totalUsers = await prisma.user.count({
-        where: { isSuspended: false },
-      });
-      const totalEvents = await prisma.event.count();
-      const totalVolunteerHours = await prisma.participation
-        .findMany({
-          where: { checkInTime: { not: null }, checkOutTime: { not: null } },
-          include: { user: { select: { isSuspended: true } } },
-        })
-        .then((ps) =>
-          ps
-            .filter((p) => !p.user.isSuspended)
-            .reduce(
-              (sum, p) =>
-                sum +
-                (p.checkOutTime!.getTime() - p.checkInTime!.getTime()) /
-                  (1000 * 60 * 60),
-              0
-            )
-        );
-      const totalWaste = await prisma.cleanUpData
-        .findMany({ include: { User: { select: { isSuspended: true } } } })
-        .then((ds) =>
-          ds
-            .filter((d) => !d.User.isSuspended)
-            .reduce((sum, c) => sum + c.totalWeight, 0)
-            .toFixed(2)
-        );
-      const uniqueLocations = await prisma.location.count({
-        where: { isActive: true },
-      });
-      const wasteByCategory = await prisma.cleanUpData
-        .findMany({
-          include: { category: true, User: { select: { isSuspended: true } } },
-        })
-        .then((ds) =>
-          ds
-            .filter((d) => !d.User.isSuspended)
-            .reduce((acc, d) => {
-              acc[d.category.name] =
-                (acc[d.category.name] || 0) + d.totalWeight;
-              return acc;
-            }, {} as Record<string, number>)
-        );
-      const wasteStats = Object.entries(wasteByCategory).map(
-        ([category, weight]) => ({
-          category,
-          weight: weight.toFixed(2),
-          percentage:
-            parseFloat(totalWaste) > 0
-              ? ((weight / parseFloat(totalWaste)) * 100).toFixed(0)
-              : "0",
-        })
-      );
-      const monthlyEvents = await prisma.event
-        .findMany({
-          where: { startDate: { not: null } },
-          select: { startDate: true },
-        })
-        .then((es) =>
-          es.reduce((acc, e) => {
-            const monthYear = `${e.startDate!.getFullYear()}-${
-              e.startDate!.getMonth() + 1
-            }`;
-            acc[monthYear] = (acc[monthYear] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>)
-        );
-      const last12Months = Array.from({ length: 12 }, (_, i) => {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        return `${date.getFullYear()}-${date.getMonth() + 1}`;
-      }).reverse();
-      const monthlyStats = last12Months.map((monthYear) => ({
-        month: new Date(`${monthYear}-01`).toLocaleString("en-US", {
-          month: "short",
-          year: "numeric",
-        }),
-        events: monthlyEvents[monthYear] || 0,
-      }));
-
-      csvData = [
-        ["Admin Statistics"],
-        ["Metric", "Value"],
-        ["Total Users", totalUsers],
-        ["Total Events", totalEvents],
-        ["Volunteer Hours", `${totalVolunteerHours.toFixed(1)} hrs`],
-        ["Waste Collected", `${totalWaste} kg`],
-        ["Unique Locations", uniqueLocations],
-        [],
-        ["Waste by Category"],
-        ["Category", "Weight (kg)", "Percentage"],
-        ...wasteStats.map((s) => [s.category, s.weight, `${s.percentage}%`]),
-        [],
-        ["Monthly Events"],
-        ["Month", "Events"],
-        ...monthlyStats.map((s) => [s.month, s.events]),
-      ];
-    }
-
-    // Write CSV to a temporary file
-    const csvString = stringify(csvData);
-    const tempDir = join(process.cwd(), "tmp");
-    const filePath = join(tempDir, filename);
-    await writeFile(filePath, csvString);
-
-    // Redirect to a route to download the file
-    redirect(`/api/download/${encodeURIComponent(filename)}?success=true`);
-  } catch (error) {
-    console.error("Export error:", error);
-    redirect(
-      `/dashboard/statistics?error=${encodeURIComponent(
-        "Failed to export statistics"
-      )}`
-    );
-  }
-}
+import ExportForm from "./ExportForm";
+// Server action to export event statistics as CSV
 
 export default async function StatisticsPage({
   searchParams,
@@ -331,7 +12,7 @@ export default async function StatisticsPage({
   searchParams: { [key: string]: string | undefined };
 }) {
   // Validate session
-  const session = (await getSession()) as { userId: string | null };
+  const session = (await getSession()) as { userId: string } | null;
   if (!session?.userId) {
     return (
       <div className="text-center text-error">
@@ -342,7 +23,7 @@ export default async function StatisticsPage({
 
   // Fetch user data
   const user = await prisma.user.findUnique({
-    where: { userId: session.userId! },
+    where: { userId: session?.userId || "" },
     select: {
       userId: true,
       fullName: true,
@@ -367,7 +48,38 @@ export default async function StatisticsPage({
     return <div className="text-center text-error">User not found.</div>;
   }
 
-  // Validate searchParams (no await needed as searchParams is a plain object in Server Components)
+  // Fetch events for dropdown based on role
+  let eventsRaw;
+  if (user.role === "VOLUNTEER") {
+    eventsRaw = await prisma.event.findMany({
+      where: {
+        Participation: {
+          some: { userId: user.userId, checkOutTime: { not: null } },
+        },
+      },
+      select: { eventId: true, title: true },
+      orderBy: { startDate: "desc" },
+    });
+  } else if (user.role === "ORGANIZER") {
+    eventsRaw = await prisma.event.findMany({
+      where: { organizerId: user.userId },
+      select: { eventId: true, title: true },
+      orderBy: { startDate: "desc" },
+    });
+  } else {
+    eventsRaw = await prisma.event.findMany({
+      select: { eventId: true, title: true },
+      orderBy: { startDate: "desc" },
+    });
+  }
+
+  // Serialize events to plain objects
+  const events = eventsRaw.map((event) => ({
+    eventId: event.eventId,
+    title: event.title,
+  }));
+
+  // Validate searchParams
   const currentYear = new Date().getFullYear();
   const year =
     parseInt(searchParams.year || currentYear.toString()) || currentYear;
@@ -481,13 +193,7 @@ export default async function StatisticsPage({
     statsContent = (
       <>
         <div className="flex justify-end mb-4">
-          <form action={exportStatistics}>
-            <input type="hidden" name="userId" value={user.userId} />
-            <input type="hidden" name="role" value={user.role} />
-            <button type="submit" className="btn btn-primary">
-              <Download className="h-5 w-5" /> Export to CSV
-            </button>
-          </form>
+          <ExportForm user={user} events={events} />
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="stats shadow">
@@ -734,13 +440,7 @@ export default async function StatisticsPage({
     statsContent = (
       <>
         <div className="flex justify-end mb-4">
-          <form action={exportStatistics}>
-            <input type="hidden" name="userId" value={user.userId} />
-            <input type="hidden" name="role" value={user.role} />
-            <button type="submit" className="btn btn-primary">
-              <Download className="h-5 w-5" /> Export to CSV
-            </button>
-          </form>
+          <ExportForm user={user} events={events} />
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="stats shadow">
@@ -1016,13 +716,7 @@ export default async function StatisticsPage({
     statsContent = (
       <>
         <div className="flex justify-end mb-4">
-          <form action={exportStatistics}>
-            <input type="hidden" name="userId" value={user.userId} />
-            <input type="hidden" name="role" value={user.role} />
-            <button type="submit" className="btn btn-primary">
-              <Download className="h-5 w-5" /> Export to CSV
-            </button>
-          </form>
+          <ExportForm user={user} events={events} />
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="stats shadow">
@@ -1192,9 +886,9 @@ export default async function StatisticsPage({
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">{title}</h1>
+        <h1 className="text-3xl font-bold text-primary">{title}</h1>
         <p className="text-base-content/70">{subtitle}</p>
         {error && (
           <div className="alert alert-error mt-4">

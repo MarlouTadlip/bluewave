@@ -19,6 +19,7 @@ export default async function EventsPage() {
   const user = await prisma.user.findUnique({
     where: { userId: session.userId },
     select: {
+      userId: true,
       fullName: true,
       role: true,
       participations: {
@@ -298,7 +299,7 @@ export default async function EventsPage() {
                         </td>
                         <td>
                           <Link
-                            href={`/check-in?eventId=${event.id}`}
+                            href={`/dashboard/checkin`}
                             className="btn btn-sm btn-primary"
                           >
                             Manage Check-Ins

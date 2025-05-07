@@ -14,6 +14,7 @@ import {
   Bell,
   LogOut,
   Settings,
+  BriefcaseBusiness,
 } from "lucide-react";
 import type { UserRole } from "@/types";
 import ThemeSwitcher from "../app/context/themecontroller";
@@ -48,11 +49,16 @@ const getSidebarItems = (role: UserRole) => {
           label: "Event Management",
           href: "/dashboard/events",
         },
+        {
+          icon: BriefcaseBusiness,
+          label: "Sponsorships",
+          href: "/dashboard/sponsors",
+        },
         { icon: Clock, label: "Check-in/out", href: "/dashboard/checkin" },
         {
           icon: BarChart3,
           label: "Performance Metrics",
-          href: "/dashboard/metrics",
+          href: "/dashboard/statistics",
         },
       ];
     case "ADMIN":
@@ -64,6 +70,11 @@ const getSidebarItems = (role: UserRole) => {
           href: "/dashboard/statistics",
         },
         { icon: Calendar, label: "Events Overview", href: "/dashboard/events" },
+        {
+          icon: BriefcaseBusiness,
+          label: "Sponsorships",
+          href: "/dashboard/sponsors",
+        },
         { icon: User, label: "User Management", href: "/dashboard/users" },
         {
           icon: Settings,

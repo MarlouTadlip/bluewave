@@ -124,6 +124,7 @@ model EventSponsor {
   eventSponsorId String  @id @default(cuid())
   eventId        String
   sponsorId      String
+  amount         Float   @default(0)
   event          Event   @relation(fields: [eventId], references: [eventId])
   sponsor        Sponsor @relation(fields: [sponsorId], references: [sponsorId])
 }

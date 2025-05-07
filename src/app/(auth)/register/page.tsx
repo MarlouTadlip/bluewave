@@ -1,4 +1,5 @@
 "use client";
+
 import { createUser } from "@/features/users/actions/users";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -7,7 +8,21 @@ import Swal from "sweetalert2";
 const Page = () => {
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
+
   const handleSubmit = async (formData: FormData) => {
+    const email = formData.get("email") as string;
+
+    // Client-side email validation
+    if (!email.toLowerCase().endsWith(".com")) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Email must end with .com",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
+
     const result = await createUser(formData);
     if (result) {
       setMessage(result.message);
@@ -25,6 +40,9 @@ const Page = () => {
       }).then(() => {
         setMessage("");
         setSuccess(false);
+        if (success) {
+          window.location.href = "/login";
+        }
       });
     }
   }, [message, success]);
@@ -59,6 +77,8 @@ const Page = () => {
               placeholder="Enter your email"
               className="input input-bordered"
               name="email"
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$"
+              title="Email must end with .com"
               required
             />
           </div>
@@ -70,7 +90,7 @@ const Page = () => {
               </span>
             </label>
             <input
-              type="number"
+              type="tel"
               placeholder="Enter your contact number"
               className="input input-bordered"
               name="phone"
@@ -108,7 +128,9 @@ const Page = () => {
             </div>
           </div>
 
-          <button className="btn btn-primary w-full mt-6">Sign Up</button>
+          <button type="submit" className="btn btn-primary w-full mt-6">
+            Sign Up
+          </button>
         </form>
 
         <div className="divider text-base-content">or</div>
