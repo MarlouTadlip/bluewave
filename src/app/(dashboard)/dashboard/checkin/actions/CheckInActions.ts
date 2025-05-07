@@ -17,9 +17,23 @@ export async function checkInVolunteer(participationId: string): Promise<void> {
 }
 
 export async function checkOutVolunteer(
-  participationId: string
+  participationId: string,
+  eventId: string,
+  userId: string
 ): Promise<void> {
   try {
+    // Check if cleanup data exists for this volunteer
+    const cleanupData = await prisma.cleanUpData.findFirst({
+      where: {
+        eventId,
+        submittedBy: userId,
+      },
+    });
+
+    if (!cleanupData) {
+      throw new Error("Volunteer must submit cleanup data before checking out");
+    }
+
     await prisma.participation.update({
       where: { participationId },
       data: { checkOutTime: new Date() },
@@ -27,7 +41,9 @@ export async function checkOutVolunteer(
     revalidatePath("/check-in");
   } catch (error) {
     console.error("Error checking out volunteer:", error);
-    throw new Error("Failed to check out volunteer");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to check out volunteer"
+    );
   }
 }
 
@@ -81,44 +97,26 @@ export async function updateCleanUpData(
   }
 }
 
-export async function addCleanUpData(
-  eventId: string,
-  formData: FormData
-): Promise<void> {
+export async function addCleanUpData(eventId: string, formData: FormData): Promise<void> {
   try {
     const categoryId = formData.get("categoryId") as string;
     const totalWeight = parseFloat(formData.get("totalWeight") as string);
     const totalBags = parseInt(formData.get("totalBags") as string);
     const submittedBy = formData.get("submittedBy") as string;
-    await submitCleanUpData(
-      eventId,
-      categoryId,
-      totalWeight,
-      totalBags,
-      submittedBy
-    );
+    await submitCleanUpData(eventId, categoryId, totalWeight, totalBags, submittedBy);
   } catch (error) {
     console.error("Error adding cleanup data:", error);
     throw new Error("Failed to add cleanup data");
   }
 }
 
-export async function editCleanUpData(
-  cleanupId: string,
-  formData: FormData
-): Promise<void> {
+export async function editCleanUpData(cleanupId: string, formData: FormData): Promise<void> {
   try {
     const categoryId = formData.get("categoryId") as string;
     const totalWeight = parseFloat(formData.get("totalWeight") as string);
     const totalBags = parseInt(formData.get("totalBags") as string);
     const submittedBy = formData.get("submittedBy") as string;
-    await updateCleanUpData(
-      cleanupId,
-      categoryId,
-      totalWeight,
-      totalBags,
-      submittedBy
-    );
+    await updateCleanUpData(cleanupId, categoryId, totalWeight, totalBags, submittedBy);
   } catch (error) {
     console.error("Error editing cleanup data:", error);
     throw new Error("Failed to edit cleanup data");

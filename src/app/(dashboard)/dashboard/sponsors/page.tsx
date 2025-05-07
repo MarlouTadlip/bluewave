@@ -9,6 +9,7 @@ import {
   createSponsor,
   linkSponsorToEvent,
   updateEventSponsor,
+  getAvailableSponsorsForEvent,
 } from "./actions/SponsorActions";
 
 export default async function SponsorsPage() {
@@ -46,10 +47,6 @@ export default async function SponsorsPage() {
     orderBy: { startDate: "desc" },
   });
 
-  const sponsors = await prisma.sponsor.findMany({
-    orderBy: { name: "asc" },
-  });
-
   if (events.length === 0) {
     return (
       <div className="space-y-6">
@@ -63,6 +60,16 @@ export default async function SponsorsPage() {
     );
   }
 
+  // Get available sponsors for each event
+  const eventsWithAvailableSponsors = await Promise.all(
+    events.map(async (event) => {
+      const availableSponsors = await getAvailableSponsorsForEvent(
+        event.eventId
+      );
+      return { ...event, availableSponsors };
+    })
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -74,7 +81,7 @@ export default async function SponsorsPage() {
         </p>
       </div>
 
-      {events.map((event) => (
+      {eventsWithAvailableSponsors.map((event) => (
         <div key={event.eventId} className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">{event.title}</h2>
@@ -147,12 +154,18 @@ export default async function SponsorsPage() {
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Sponsors</h3>
                 <div className="flex gap-2">
-                  <label
-                    htmlFor={`add-sponsor-modal-${event.eventId}`}
-                    className="btn btn-primary btn-sm"
-                  >
-                    <PlusCircle className="h-4 w-4" /> Add Existing Sponsor
-                  </label>
+                  {event.availableSponsors.length > 0 ? (
+                    <label
+                      htmlFor={`add-sponsor-modal-${event.eventId}`}
+                      className="btn btn-primary btn-sm"
+                    >
+                      <PlusCircle className="h-4 w-4" /> Add Existing Sponsor
+                    </label>
+                  ) : (
+                    <span className="text-gray-500 text-sm mr-2">
+                      (No more available sponsors to add)
+                    </span>
+                  )}
                   <label
                     htmlFor={`create-sponsor-modal-${event.eventId}`}
                     className="btn btn-primary btn-sm"
@@ -182,7 +195,7 @@ export default async function SponsorsPage() {
                         required
                       >
                         <option value="">Select a sponsor</option>
-                        {sponsors.map((sponsor) => (
+                        {event.availableSponsors.map((sponsor) => (
                           <option
                             key={sponsor.sponsorId}
                             value={sponsor.sponsorId}
@@ -201,14 +214,18 @@ export default async function SponsorsPage() {
                       <input
                         type="number"
                         name="amount"
-                        step="0.01"
-                        min="0"
+                        step="1"
+                        min="1"
                         className="input input-bordered w-full"
                         required
                       />
                     </div>
                     <div className="modal-action">
-                      <button type="submit" className="btn btn-primary">
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={event.availableSponsors.length === 0}
+                      >
                         Add
                       </button>
                       <label
@@ -286,7 +303,7 @@ export default async function SponsorsPage() {
                         type="number"
                         name="amount"
                         step="0.01"
-                        min="0"
+                        min="1"
                         className="input input-bordered w-full"
                         required
                       />
@@ -381,7 +398,7 @@ export default async function SponsorsPage() {
                             type="number"
                             name="amount"
                             step="0.01"
-                            min="0"
+                            min="1"
                             defaultValue={eventSponsor.amount}
                             className="input input-bordered w-full"
                             required

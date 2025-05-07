@@ -140,3 +140,32 @@ export async function updateEventSponsor(
     throw new Error("Failed to update event sponsor");
   }
 }
+
+// New helper function to get available sponsors for an event
+export async function getAvailableSponsorsForEvent(eventId: string) {
+  try {
+    // Get all sponsors
+    const allSponsors = await prisma.sponsor.findMany({
+      orderBy: { name: "asc" },
+    });
+
+    // Get sponsors already assigned to this event
+    const eventSponsors = await prisma.eventSponsor.findMany({
+      where: { eventId },
+      select: { sponsorId: true },
+    });
+
+    // Create a set of already assigned sponsor IDs for quick lookup
+    const assignedSponsorIds = new Set(eventSponsors.map((es) => es.sponsorId));
+
+    // Filter out already assigned sponsors
+    const availableSponsors = allSponsors.filter(
+      (sponsor) => !assignedSponsorIds.has(sponsor.sponsorId)
+    );
+
+    return availableSponsors;
+  } catch (error) {
+    console.error("Error getting available sponsors:", error);
+    throw new Error("Failed to get available sponsors");
+  }
+}

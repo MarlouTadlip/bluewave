@@ -147,9 +147,6 @@ export default async function ProfilePage() {
                   )}
                 </div>
               </div>
-              <button className="btn btn-primary w-full">
-                Save Preferences
-              </button>
             </div>
           </div>
         </div>
